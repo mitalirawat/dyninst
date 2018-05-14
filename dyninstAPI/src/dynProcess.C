@@ -155,7 +155,6 @@ PCProcess *PCProcess::attachProcess(const string &progpath, int pid,
 
     ret->runningWhenAttached_ = tmpPcProc->allThreadsRunningWhenAttached();
     ret->file_ = tmpPcProc->libraries().getExecutable()->getAbsoluteName();
-
     if( !ret->bootstrapProcess() ) {
         startup_cerr << "Failed to bootstrap process " << pid 
                      << ": terminating..." << endl;
@@ -573,7 +572,7 @@ void PCProcess::createInitialThreads() {
     }
 }
 
-bool PCProcess::createInitialMappedObjects() {
+       bool PCProcess::createInitialMappedObjects() {
     if( file_.empty() ) {
         startup_printf("%s[%d]: failed to determine executable for process %d\n",
                 FILE__, __LINE__, getPid());
@@ -610,9 +609,9 @@ bool PCProcess::createInitialMappedObjects() {
        startup_cerr << "Library: " << (*i)->getAbsoluteName() 
             << hex << " / " << (*i)->getLoadAddress() 
             << ", " << ((*i)->isSharedLib() ? "<lib>" : "<aout>") << dec << endl;
-
-       mapped_object *newObj = mapped_object::createMappedObject(*i, 
+        mapped_object *newObj = mapped_object::createMappedObject(*i, 
                                                                  this, analysisMode_);
+        fprintf(stderr, "Library:%s\n Address:%p , size: %u",(*i)->getAbsoluteName().c_str(), (*i)->getLoadAddress(), newObj->imageSize());
        if( newObj == NULL ) {
            startup_printf("%s[%d]: failed to create mapped object for library %s\n",
                    FILE__, __LINE__, (*i)->getAbsoluteName().c_str());
@@ -810,7 +809,6 @@ bool PCProcess::loadRTLib() {
        return false;
      }
      bootstrapState_ = bs_loadedRTLib;
-     
      // Process the library load (we hope)
      PCEventMuxer::handle(this);
      
@@ -2784,11 +2782,13 @@ void PCProcess::debugSuicide() {
         // Get the current PC
         MachRegister pcReg = MachRegister::getPC(getArch());
         MachRegisterVal resultVal;
-        if( !initialThread->getRegister(pcReg, resultVal) ) {
+        fprintf(stderr, "%s[%d]: retreive register from thread %d/%d\n",
+                    FILE__, __LINE__, getPid(), initialThread->getLWP());
+ /*       if( !initialThread->getRegister(pcReg, resultVal) ) {
             fprintf(stderr, "%s[%d]: failed to retreive register from thread %d/%d\n",
                     FILE__, __LINE__, getPid(), initialThread->getLWP());
             return;
-        }
+        }*/
     }
 }
 

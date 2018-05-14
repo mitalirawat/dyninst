@@ -47,6 +47,7 @@
 
 using namespace Dyninst;
 using namespace ProcControlAPI;
+using namespace std;
 
 PCEventMuxer PCEventMuxer::muxer_;
 Process::cb_ret_t PCEventMuxer::ret_stopped(Process::cbProcStop, Process::cbProcStop);
@@ -55,6 +56,7 @@ Process::cb_ret_t PCEventMuxer::ret_default(Process::cbDefault, Process::cbDefau
 
 PCEventMuxer::PCEventMuxer() : callbacksRegistered_(false), started_(false) {
 };
+
 
 bool PCEventMuxer::start() {
 	if (muxer().started_) return true;
@@ -148,6 +150,9 @@ DThread::dthread_ret_t PCEventMuxer::main(void *) {
 }
 
 bool PCEventMuxer::registerCallbacks() {
+  
+  //myfile.open ("r9log.txt", ios::app);
+  //myfile << "Writing this to a file.\n";
 	if (callbacksRegistered_) return true;
 
 	bool ret = true;
@@ -160,7 +165,8 @@ bool PCEventMuxer::registerCallbacks() {
 	ret &= Process::registerEventCallback(EventType(EventType::Any, EventType::Library), defaultCallback);
 	ret &= Process::registerEventCallback(EventType(EventType::Any, EventType::Breakpoint), breakpointCallback);
 	ret &= Process::registerEventCallback(EventType(EventType::Any, EventType::RPC), RPCCallback);
-	ret &= Process::registerEventCallback(EventType(EventType::Any, EventType::SingleStep), defaultCallback);
+	//ret &= Process::registerEventCallback(EventType(EventType::Any, EventType::SingleStep), defaultCallback);
+  ret &= Process::registerEventCallback(EventType(EventType::Any, EventType::SingleStep), SingleStepCallback);
 
 	// Fork/exec/exit
 	if (useCallback(EventType(EventType::Pre, EventType::Exit))) {
@@ -223,6 +229,59 @@ PCEventMuxer::cb_ret_t PCEventMuxer::defaultCallback(EventPtr ev) {
 	INITIAL_MUXING;
 
 	DEFAULT_RETURN;
+}
+PCEventMuxer::cb_ret_t PCEventMuxer::SingleStepCallback(EventPtr ev) {
+  INITIAL_MUXING;
+  fprintf(stderr, "%s will print event in single step callback\n",ev->name().c_str() );
+  MachRegister pcReg = MachRegister::getPC(ev->getProcess()->getArchitecture());
+    //getArch());
+  MachRegisterVal loc;
+  bool result = ev->getThread()->getRegister(pcReg, loc);
+    if (!result) {
+        fprintf(stderr,"Failed to read PC register\n");
+        return Process::cbDefault;
+    }
+//problemarea was unsigned, loc is MAchregisteval- unsigned long long
+    //insert PC, r9, bytes in file
+  fprintf(stderr, "printing in mutatee at %p\n", loc);
+  for(uint64_t i = loc-16; i < loc+48; i++)
+  {
+    unsigned char tmp = 0;
+
+    //if(proc->plat_readMem(NULL, &tmp, i, 1)) {
+    if(ev->getProcess()->readMemory(&tmp,i,1)){
+      fprintf(stderr, "%p: %x\n", i, tmp);
+    }
+    
+    else {
+      fprintf(stderr, "failed to read from %p\n", i);
+      break;
+    }
+  }
+  bool singlestep_modev = ev->getThread()->getSingleStepMode();
+  fprintf(stderr, "single step mode value at end of callback is %d\n", singlestep_modev);
+  ev->getThread()->setSingleStepMode(true);
+  singlestep_modev = ev->getThread()->getSingleStepMode();
+  fprintf(stderr, "single step mode value after resetting is %d\n", singlestep_modev);
+  fprintf(stderr, "Registers in singlestep callback:\n");
+  RegisterPool regs;
+  if( !ev->getThread()->getAllRegisters(regs) ) {
+            fprintf(stderr, "%s[%d]: Failed to get registers for crash\n", FILE__, __LINE__);
+        }else{
+            fprintf(stderr, "Registers at singlestep:\n");
+            for(RegisterPool::iterator i = regs.begin(); i != regs.end(); i++) {
+                fprintf(stderr, "\t%s = 0x%lx\n", (*i).first.name().c_str(), (*i).second);
+            }
+        }
+  /*char buffer_inst[8];
+  ev->getProcess()->readMemory(buffer_inst, loc, 8);
+  fprintf(stderr, "address in Pc register is %x and size is %d\n",loc, sizeof(loc) );
+  fprintf(stderr, "instruction at the location Pc register points to is %x\n",buffer_inst );
+  ev->getProcess()->readMemory(buffer_inst, loc+8, 8);
+  fprintf(stderr, "instruction at the location Pc register points to is %x\n",buffer_inst );
+  */
+  //myfile.close();
+  DEFAULT_RETURN;
 }
 
 

@@ -99,7 +99,7 @@ int bpfatal(const char *format, ...)
 
   va_list va;
   va_start(va, format);
-#if defined (i386_unknown_nt4_0)
+#if defined (os_windows)
   _vsnprintf(errbuf, ERR_BUF_SIZE,format, va);
 #else
   vsnprintf(errbuf, ERR_BUF_SIZE,format, va);
@@ -143,7 +143,7 @@ int bperr(const char *format, ...)
 
   va_list va;
   va_start(va, format);
-#if defined (i386_unknown_nt4_0)
+#if defined (os_windows)
   int errbuflen = _vsnprintf(errbuf, ERR_BUF_SIZE, format, va);
 #else
   int errbuflen = vsnprintf(errbuf, ERR_BUF_SIZE, format, va);
@@ -177,7 +177,7 @@ int bpwarn(const char *format, ...)
 
   va_list va;
   va_start(va, format);
-#if defined (i386_unknown_nt4_0)
+#if defined (os_windows)
   _vsnprintf(errbuf, ERR_BUF_SIZE,format, va);
 #else
   vsnprintf(errbuf, ERR_BUF_SIZE,format, va);
@@ -197,7 +197,7 @@ int bpinfo(const char *format, ...)
 
   va_list va;
   va_start(va, format);
-#if defined (i386_unknown_nt4_0)
+#if defined (os_windows)
   _vsnprintf(errbuf, ERR_BUF_SIZE, format, va);
 #else
   vsnprintf(errbuf, ERR_BUF_SIZE, format, va);

@@ -57,7 +57,7 @@
 #include "dynThread.h"
 #include "pcEventMuxer.h"
 
-#if defined(i386_unknown_nt4_0)
+#if defined(os_windows)
 #include "nt_signal_emul.h"
 #endif
 
@@ -363,7 +363,7 @@ BPatchErrorCallback BPatch::registerErrorCallback(BPatchErrorCallback function)
  */
 BPatchForkCallback BPatch::registerPostForkCallback(BPatchForkCallback func)
 {
-#if defined(i386_unknown_nt4_0) 
+#if defined(os_windows)
   reportError(BPatchWarning, 0,
 	      "postfork callbacks not implemented on this platform\n");
   return NULL;
@@ -384,7 +384,7 @@ BPatchForkCallback BPatch::registerPostForkCallback(BPatchForkCallback func)
  */
 BPatchForkCallback BPatch::registerPreForkCallback(BPatchForkCallback func)
 {
-#if defined(i386_unknown_nt4_0)
+#if defined(os_windows)
     reportError(BPatchWarning, 0,
 	"prefork callbacks not implemented on this platform\n");
     return NULL;
@@ -406,7 +406,7 @@ BPatchForkCallback BPatch::registerPreForkCallback(BPatchForkCallback func)
 BPatchExecCallback BPatch::registerExecCallback(BPatchExecCallback func)
 {
 
-#if defined(i386_unknown_nt4_0) 
+#if defined(os_windows) 
     reportError(BPatchWarning, 0,
 	"exec callbacks not implemented on this platform\n");
     return NULL;

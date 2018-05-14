@@ -27,7 +27,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
+#include <boost/filesystem.hpp>
 #include "common/src/std_namesp.h"
 #include <iomanip>
 #include <string>
@@ -48,6 +48,7 @@
 #include "image.h"
 #include "MemoryEmulator/memEmulator.h"
 #include <boost/tuple/tuple.hpp>
+
 
 #include "dyninstAPI/src/ast.h"
 
@@ -1063,7 +1064,7 @@ bool PCProcess::getDyninstRTLibName()
 {
     startup_printf("Begin getDyninstRTLibName\n");
     bool use_abi_rt = false;
-#if defined(arch_64bit)
+#if defined(arch_64bit) && !defined(os_windows)
     use_abi_rt = (getAddressWidth() == 4);
 #endif
 
@@ -1085,3 +1086,57 @@ bool PCProcess::getDyninstRTLibName()
     dyninstRT_name = rt_paths[0];
     return true;
 }
+
+bool BinaryEdit::getResolvedLibraryPath(const string &filename, std::vector<string> &paths) { 
+
+
+    char *libPathStr, *libPath;
+    std::vector<string> libPaths;
+  //   //struct stat dummy;
+  //   char buffer[512];
+  //   //char *pos, *key, *val;
+
+     // prefer qualified file paths
+
+     if ( boost::filesystem::exists(filename.c_str())) {
+  //   //if (stat(filename.c_str(), &dummy) == 0) {
+        paths.push_back(filename); 
+     }
+
+  //   // For cross-rewriting
+  //   char *dyn_path = getenv("DYNINST_REWRITER_PATHS");
+  //   if (dyn_path) {
+  //      libPathStr = strdup(dyn_path);
+  //      libPath = strtok(libPathStr, ":");
+  //      while (libPath != NULL) {
+  //         libPaths.push_back(string(libPath));
+  //         libPath = strtok(NULL, ":");
+  //      }
+  //      free(libPathStr);
+  //   }
+
+     // search paths from environment variables
+    char *ld_path = getenv("PATH");
+    if (ld_path) {
+      libPathStr = strdup(ld_path);
+      libPath = strtok(libPathStr, ";");
+      while (libPath != NULL) {
+          libPaths.push_back(string(libPath));
+         libPath = strtok(NULL, ":");
+          //to assign to empty string? ---wats the use of this
+      }
+       free(libPathStr);
+    }
+
+  //   //libPaths.push_back(string(getenv("PWD")));
+    for (unsigned int i = 0; i < libPaths.size(); i++) {
+      //TODO check if the path contains the filename itself and check if path exists --ask abt this
+
+        string str = libPaths[i] + "\\" + filename;
+        if ( boost::filesystem::exists(str.c_str()) ) {
+            paths.push_back(str);
+        }
+     }
+    return ( 0 < paths.size() );
+  //return 0;
+  }

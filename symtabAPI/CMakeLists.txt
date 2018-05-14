@@ -7,7 +7,7 @@ include_directories (
   ${PROJECT_SOURCE_DIR}/elf/h
   )
 
-if(NOT WIN32)
+if(NOT WIN32 AND NOT WIN64)
   include_directories(${PROJECT_SOURCE_DIR}/common/src)
 endif()
 
@@ -85,7 +85,7 @@ endif()
 endif()
 
 
-if (PLATFORM MATCHES nt)
+if (PLATFORM MATCHES nt OR PLATFORM MATCHES windows)
 set (SRC_LIST ${SRC_LIST}
     src/Object-nt.C
 	src/emitWin.C

@@ -1,7 +1,7 @@
 # CMake configuration for common directory
 
 
-if(NOT WIN32)
+if(NOT WIN32 AND NOT WIN64)
 include_directories (
     ${PROJECT_SOURCE_DIR}/common/h 
     ${PROJECT_SOURCE_DIR}/common/src
@@ -90,7 +90,7 @@ if (PLATFORM MATCHES cnl)
   )
 endif()  
 
-if (PLATFORM MATCHES nt OR PLATFORM MATCHES windows)
+if (PLATFORM MATCHES nt )
   set (SRC_LIST ${SRC_LIST}
     src/ntKludges.C
     src/timing-nt.C
@@ -98,9 +98,20 @@ if (PLATFORM MATCHES nt OR PLATFORM MATCHES windows)
 #	src/dthread.C
     src/addrtranslate-win.C
   )
-  add_definitions(-DWIN32 -D_WIN32_WINNT=0x500)
+  add_definitions(-DWIN32 -DWIN_COM -D_WIN32_WINNT=0x500)
 endif()  
 
+if (PLATFORM MATCHES windows)
+  set (SRC_LIST ${SRC_LIST}
+    src/ntKludges.C
+    src/timing-nt.C
+#    src/dthread-win.C
+#	src/dthread.C
+    src/addrtranslate-win.C
+  )
+#for windows 7 value of _WIN32_WINNT is _WIN32_WINNT_WIN7 and WINVER is 0x0601
+  add_definitions(-DWIN64 -DWIN_COM -D_WIN32_WINNT=0x0601)
+endif()  
 
 SET_SOURCE_FILES_PROPERTIES(${SRC_LIST} PROPERTIES LANGUAGE CXX)
 

@@ -216,7 +216,7 @@ private:
 /************************************************************************
  * include the architecture-operating system specific object files.
 ************************************************************************/
-
+//fprintf(stderr, "%d\n", os_windows);
 #if defined(os_linux) || defined(os_bg) || defined(os_freebsd) || defined(os_vxworks)
 #include "Object-elf.h"
 #elif defined(os_windows)

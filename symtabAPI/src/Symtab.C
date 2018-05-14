@@ -334,7 +334,7 @@ boost::shared_ptr<typeCollection> Symtab::setupStdTypes()
    stdTypes->addType(newType = new typeScalar(-12, sizeof(float), "float"));
    newType->decrRefCount();
 
-#if defined(i386_unknown_nt4_0)
+#if defined(os_windows)
    stdTypes->addType(newType = new typeScalar(-31, sizeof(LONGLONG), "long long"));    
 #else
    stdTypes->addType(newType = new typeScalar(-31, sizeof(long long), "long long"));

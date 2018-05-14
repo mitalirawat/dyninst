@@ -42,7 +42,7 @@
 #if defined(arch_power)
 using namespace NS_power;
 
-#elif defined(i386_unknown_nt4_0) \
+#elif defined(os_windows) \
    || defined(arch_x86)           \
    || defined(arch_x86_64)
 using namespace NS_x86;

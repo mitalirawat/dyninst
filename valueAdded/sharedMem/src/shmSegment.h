@@ -45,11 +45,11 @@
 
 class BPatch_process;
 
-#if defined(i386_unknown_nt4_0)
+#if defined(os_windows)
 typedef HANDLE  shmid_t;
-#else // defined(i386_unknown_nt4_0)
+#else // defined(os_windows)
 typedef int     shmid_t;   
-#endif // defined(i386_unknown_nt4_0)
+#endif // defined(os_windows)
 
 
 class ShmSegment

@@ -1,6 +1,6 @@
 # The test suite needs this as a list rather than a bunch
 # of definitions so that we can append _test to it. 
-
+message(STATUS "arch def file platform value is " ${PLATFORM})
 set (CAP_DEFINES
      -Dcap_dynamic_heap 
      -Dcap_liveness 
@@ -10,7 +10,7 @@ set (CAP_DEFINES
 if (${USE_GNU_DEMANGLER} MATCHES 1)
 set (CAP_DEFINES ${CAP_DEFINES} -Dcap_gnu_demangler)
 endif()
-
+#TODO: see what platform value a 32 bit windows system returns and change below
 if (PLATFORM MATCHES i386)
 set (ARCH_DEFINES -Darch_x86)
 set (CAP_DEFINES ${CAP_DEFINES}
@@ -113,6 +113,14 @@ set (CAP_DEFINES ${CAP_DEFINES}
              -Dcap_mem_emulation
              -Dcap_mutatee_traps
     )
+elseif (PLATFORM MATCHES windows)
+message(STATUS "CORRECTLY MATCHED PLATFORM IN CAPR ARCH")
+set (OS_DEFINES -Dos_windows)
+set (CAP_DEFINES ${CAP_DEFINES} 
+             -Dcap_mem_emulation
+             -Dcap_mutatee_traps
+    )
+
 endif (PLATFORM MATCHES linux)
 
 
@@ -144,6 +152,10 @@ set (OLD_DEFINES -Damd64_unknown_freebsd7_0)
 
 elseif (PLATFORM STREQUAL i386-unknown-nt4.0)
 set (OLD_DEFINES -Di386_unknown_nt4_0)
+set (OLD_DEFINES -Dwindows_common)
+elseif (PLATFORM STREQUAL amd64-windows)
+set (OLD_DEFINES -Dwindows_common)
+
 elseif (PLATFORM STREQUAL aarch64-unknown-linux)
   set (OLD_DEFINES -Daarch64_unknown_linux)
 else (PLATFORM STREQUAL i386-unknown-linux2.4)

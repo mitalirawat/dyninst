@@ -29,6 +29,8 @@
  */
 
 #include <windows.h>
+#include <tchar.h>
+#include<strsafe.h>
 #include <cvconst/cvconst.h>
 #include <oleauto.h>
 #if !defined __out_ecount_opt
@@ -835,7 +837,9 @@ void Object::FindInterestingSections(bool alloc_syms, bool defensive)
       }
       return;
    }
-
+   if(peHdr->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64)
+   		addressWidth_nbytes = 8;
+   	
    assert( peHdr->FileHeader.SizeOfOptionalHeader > 0 ); 
 
    string file_ = mf->filename();
@@ -859,7 +863,7 @@ void Object::FindInterestingSections(bool alloc_syms, bool defensive)
    //       table, but this is false, at least in the typical case for which 
    //       Base=1, I haven't observed any binaries with different bases
 	if (!is_aout_ && peHdr->OptionalHeader.NumberOfRvaAndSizes > IMAGE_DIRECTORY_ENTRY_EXPORT) {
-		assert(sizeof(Offset) == getAddressWidth());
+		//assert(sizeof(Offset) == getAddressWidth());
 		unsigned long size;
 		IMAGE_EXPORT_DIRECTORY *eT2 = (IMAGE_EXPORT_DIRECTORY *)::ImageDirectoryEntryToData(mapAddr, false, IMAGE_DIRECTORY_ENTRY_EXPORT, &size);
 		if (eT2) {
@@ -1101,6 +1105,9 @@ bool Object::isText( const Offset addr ) const
 void fixup_filename(std::string &filename)
 {
 	if (filename.substr(0,22) == "\\Device\\HarddiskVolume") {
+		extern void convert_to_dos_path(std::string &);
+		convert_to_dos_path(filename);
+		return;
 		TCHAR volumePath[1024];
 		if (GetVolumePathName(filename.c_str(), volumePath, 1024)) {
 			std::string::size_type filePathIndex = filename.find_first_of("\\/", 22);
@@ -1112,6 +1119,113 @@ void fixup_filename(std::string &filename)
 			filename = "c:"+filename.substr(23);
 		}
 	}
+}
+// void handle_nt_namespace_paths(std::string &filename) {
+
+// 	pNtCreateFile NtCreatefile = (pNtCreateFile)GetProcAddress(GetModuleHandle(L"ntdll.dll"), "NtCreateFile");
+// 	IO_STATUS_BLOCK iosb;
+//      ULONG status = NtCreatefile(&hFile, GENERIC_ALL, NULL, iosb, NULL, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ | FILE_SHARE_WRITE, FILE_OPEN, FILE_OPEN_BY_FILE_ID | FILE_NON_DIRECTORY_FILE, NULL, 0);
+//     printf("status: %X, handle: %x\n", status, f);
+
+// 	HANDLE h_nt_file = OpenProcess( 
+//         PROCESS_DUP_HANDLE | PROCESS_QUERY_INFORMATION, FALSE, pid); 
+//     if (hFile == NULL) 
+//     { 
+//         _tprintf(_T("OpenProcess failed w/err 0x%08lx\n"), GetLastError()); 
+//         return -1; 
+//     } 
+//     if(hFile == INVALID_HANDLE_VALUE)
+//     {
+//         _tprintf(TEXT("CreateFile failed with %d\n"), GetLastError());
+//         return 0;
+//     }
+// 	IO_STATUS_BLOCK ioStatus; 
+//     PFILE_NAME_INFORMATION pNameInfo = (PFILE_NAME_INFORMATION) 
+//         malloc(MAX_PATH * 2 * 2); 
+//     DWORD dwInfoSize = MAX_PATH * 2 * 2; 
+
+
+//     if (NtQueryInformationFile(hCopy, &ioStatus, pNameInfo,  
+//         dwInfoSize, FileNameInformation) == STATUS_SUCCESS) 
+//     { 
+//         // Get the file name and print it 
+//         WCHAR wszFileName[MAX_PATH + 1]; 
+//         StringCchCopyNW(wszFileName, MAX_PATH + 1,  
+//             pNameInfo->FileName, /*must be WCHAR*/ 
+//             pNameInfo->FileNameLength /*in bytes*/ / 2); 
+
+
+//         wprintf(L"0x%x:\t%s\n", pHandle->Handle, wszFileName); 
+//     } 
+//     free(pNameInfo); 
+
+
+//     CloseHandle(hCopy); 
+//     filename=wszFileName;
+// }
+
+void convert_to_dos_path(std::string &filename){
+	
+	TCHAR szTemp[MAX_PATH]; 
+        szTemp[0] = '\0'; 
+        char* result = new char[filename.length()+1];
+   		strcpy(result,filename.c_str());
+    
+ 		const char* newfilename= filename.c_str();
+ 
+        // Get a series of null-terminated strings, one for each valid drive  
+        // in the system, plus with an additional null character. Each string  
+        // is a drive name. e.g. C:\\0D:\\0\0 
+        if (GetLogicalDriveStrings(MAX_PATH - 1, szTemp))  
+        { 
+            TCHAR szName[MAX_PATH]; 
+            TCHAR szDrive[3] = _T(" :"); 
+            BOOL bFound = FALSE; 
+            TCHAR* p = szTemp; 
+ 
+ 
+            do 
+            { 
+                // Copy the drive letter to the template string 
+                *szDrive = *p; 
+ 
+ 
+                // Look up each device name. For example, given szDrive is C:,  
+                // the output szName may be \Device\HarddiskVolume2. 
+                if (QueryDosDevice(szDrive, szName, MAX_PATH)) 
+                { 
+                    UINT uNameLen = _tcslen(szName); 
+ 
+ 
+                    if (uNameLen < MAX_PATH) 
+                    { 
+                        // Match the device name e.g. \Device\HarddiskVolume2 
+                        bFound = _tcsnicmp(filename.c_str(), szName, uNameLen) == 0; 
+ 
+ 
+                        if (bFound) 
+                        { 
+
+                            // Reconstruct filename using szTempFile 
+                            // Replace device path with DOS path 
+                            TCHAR szTempFile[MAX_PATH]; 
+                            StringCchPrintf(szTempFile, MAX_PATH, _T("%s%s"),  
+                                szDrive, result + uNameLen); 
+                            StringCchCopyN(result, MAX_PATH + 1,  
+                                szTempFile, _tcslen(szTempFile)); 
+                            filename = result;
+                        } 
+                    } 
+                } 
+ 
+ 
+                // Go to the next NULL character, i.e. the next drive name. 
+                while (*p++); 
+ 
+ 
+            } while (!bFound && *p); // End of string 
+        } 
+         _tprintf(_T("Device name is %s\n"), result); 
 }
 
 Object::Object(MappedFile *mf_,

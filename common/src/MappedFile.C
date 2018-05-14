@@ -115,10 +115,6 @@ MappedFile::MappedFile(std::string fullpath_, bool &ok) :
    can_share(true),
    refCount(1)
 {
-  ok = check_path(fullpath);
-  if (!ok) {
-	  return;
-  }
   ok = open_file();
   if (!ok) return;
   ok = map_file();
@@ -220,33 +216,6 @@ MappedFile::~MappedFile()
       close_file();
 }
 
-bool MappedFile::check_path(std::string &filename)
-{
-   struct stat statbuf;
-   if (0 != stat(filename.c_str(), &statbuf)) {
-      char ebuf[1024];
-#if defined(os_windows)
-      LPVOID lpMsgBuf;
-      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
-            |     FORMAT_MESSAGE_IGNORE_INSERTS,    NULL,
-            GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)
-            &lpMsgBuf,    0,    NULL );
-
-      sprintf(ebuf, "stat: %s", (char *) lpMsgBuf);
-      LocalFree(lpMsgBuf);
-#else
-      sprintf(ebuf, "stat: %s", strerror(errno));
-#endif
-      goto err;
-   }
-
-   file_size = statbuf.st_size;
-
-   return true;
-
-err:
-   return false;
-}
 
 bool MappedFile::open_file(void *loc, unsigned long size_)
 {

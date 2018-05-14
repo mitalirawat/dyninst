@@ -875,7 +875,7 @@ int image::findMain()
         }
     }
 
-#elif defined(i386_unknown_nt4_0)
+#elif defined(os_windows)
 
     if(linkedFile->isExec()) {
         vector <Symbol *>syms;

@@ -433,7 +433,7 @@ bool HandlerPool::handleEvent(Event::ptr orig_ev)
 
       if (handler->getPriority() != Handler::CallbackPriority) {
          //We don't want the callback handler getting async events
-         // from user operations in the callback.
+         // from user operations in the callback.	
          cur_event = getRealParent(event);
       }
 
@@ -441,7 +441,7 @@ bool HandlerPool::handleEvent(Event::ptr orig_ev)
                    handler->getName().c_str());
       Handler::handler_ret_t result = handler->handleEvent(event);
 
-      cur_event = Event::ptr();
+	      cur_event = Event::ptr();
       if (result == Handler::ret_async) {
          pthrd_printf("Handler %s did not complete due to pending asyncs\n",
                       handler->getName().c_str());

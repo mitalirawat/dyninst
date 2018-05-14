@@ -70,6 +70,9 @@ bool PCEventHandler::handle_internal(EventPtr ev) {
 		return true;
 	}
     PCProcess *evProc = static_cast<PCProcess *>(ev->getProcess()->getData());
+    Thread::const_ptr thrptr= ev->getThread();
+    //thrptr->setSingleStepMode(true);
+    //ev->getThread()->getAllRegisters(regs)
 
     if( evProc == NULL ) {
         proccontrol_printf("%s[%d]: ERROR: handle to Dyninst process is invalid\n",
@@ -533,7 +536,7 @@ bool PCEventHandler::handleSignal(EventSignal::const_ptr ev, PCProcess *evProc) 
         if( !ev->getThread()->getAllRegisters(regs) ) {
             fprintf(stderr, "%s[%d]: Failed to get registers for crash\n", FILE__, __LINE__);
         }else{
-            fprintf(stderr, "Registers at crash:\n");
+            fprintf(stderr, "Handle Signal::Registers at crash:\n");
             for(RegisterPool::iterator i = regs.begin(); i != regs.end(); i++) {
                 fprintf(stderr, "\t%s = 0x%lx\n", (*i).first.name().c_str(), (*i).second);
             }
@@ -923,6 +926,27 @@ bool PCEventHandler::handleLibrary(EventLibrary::const_ptr ev, PCProcess *evProc
            // runtime_lib structure should be empty
            if (evProc->runtime_lib.size() == 0)
 	       evProc->runtime_lib.insert(newObj);
+       /* RegisterPool regs;
+        if( !ev->getThread()->getAllRegisters(regs) ) {
+            fprintf(stderr, "%s[%d]: Failed to get registers for crash\n", FILE__, __LINE__);
+        }else{
+            fprintf(stderr, "Registers at crash:\n");
+            for(RegisterPool::iterator i = regs.begin(); i != regs.end(); i++) {
+                fprintf(stderr, "\t%s = 0x%lx\n", (*i).first.name().c_str(), (*i).second);
+            }
+        }*/
+
+        // Dump the stacks
+        /*pdvector<pdvector<Frame> > stackWalks;
+        evProc->walkStacks(stackWalks);
+        for (unsigned walk_iter = 0; walk_iter < stackWalks.size(); walk_iter++) {
+            fprintf(stderr, "Stack for pid %d, lwpid %d\n",
+                    stackWalks[walk_iter][0].getProc()->getPid(),
+                    stackWalks[walk_iter][0].getThread()->getLWP());
+            for( unsigned i = 0; i < stackWalks[walk_iter].size(); i++ ) {
+                cerr << stackWalks[walk_iter][i] << endl;
+            }
+        } */      
            // Don't register the runtime library with the BPatch layer
         } else {
 	    assert(tmpDesc.file() != rtLibDesc.file());

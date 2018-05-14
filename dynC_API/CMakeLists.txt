@@ -9,7 +9,7 @@ include_directories(h
 
 set_source_files_properties(${SRC_LIST} PROPERTIES LANGUAGE CXX)
 add_definitions(-DDYNC_EXPORTS)
-if(WIN32)
+if(WIN32 OR WIN64)
 add_definitions(-DYY_NO_UNISTD_H)
 endif()
 

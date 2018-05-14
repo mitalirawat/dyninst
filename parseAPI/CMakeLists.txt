@@ -111,7 +111,7 @@ endif()
 ADD_DEFINITIONS(-DPARSER_LIB)
 ADD_DEFINITIONS(-DDATAFLOW_LIB)
 
-if(WIN32)
+if(WIN32 OR WIN64)
 ADD_DEFINITIONS(-DROSE_UTIL_EXPORTS)
 ADD_DEFINITIONS(-DNOMINMAX)
 endif()
@@ -120,7 +120,7 @@ dyninst_library(parseAPI common instructionAPI ${SYMREADER})
 
 target_link_private_libraries(parseAPI ${Boost_LIBRARIES})
 
-if (WIN32)
+if (WIN32 OR WIN64)
 target_link_private_libraries(parseAPI shlwapi)
 endif()
 

@@ -40,6 +40,7 @@
 #include "Operand.h"
 #include "InstructionCategories.h"
 #include "ArchSpecificFormatters.h"
+#include "boost/shared_ptr.hpp"
 
 #include "util.h"
 
@@ -148,6 +149,7 @@ namespace Dyninst
       INSTRUCTION_EXPORT unsigned char rawByte(unsigned int index) const;
 
       /// Returns the size of the corresponding machine instruction, in bytes.
+      // __declspec(dllimport) size_t Instruction::size() const;
       INSTRUCTION_EXPORT size_t size() const;
 
       /// Returns a pointer to the raw byte representation of the corresponding

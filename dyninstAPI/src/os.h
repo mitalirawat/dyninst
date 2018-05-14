@@ -40,7 +40,7 @@
  * This should enforce the abstract OS operations
  */ 
 
-#if defined(i386_unknown_nt4_0) 
+#if defined(os_windows) 
 #include "dyninstAPI/src/pdwinnt.h"
 
 #elif defined(os_linux)

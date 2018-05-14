@@ -62,7 +62,7 @@
 #if defined(os_windows)
 #pragma warning(disable:4355 4477)
 #endif
-
+#include <tchar.h>
 using namespace Dyninst;
 using namespace ProcControlAPI;
 using namespace std;
@@ -1014,7 +1014,7 @@ bool int_process::waitAndHandleEvents(bool block)
        * For most people, just ignore the #defines.  The important bit is that we're really
        * calling the Counter::global(...) function to determine whether we should block.
        **/
-      int hasHandlerThread = UNSET_CHECK, hasAsyncPending = UNSET_CHECK, hasRunningThread = UNSET_CHECK;
+       int hasHandlerThread = UNSET_CHECK, hasAsyncPending = UNSET_CHECK, hasRunningThread = UNSET_CHECK;
       int hasClearingBP = UNSET_CHECK, hasStopPending = UNSET_CHECK, hasSyncRPCRunningThrd = UNSET_CHECK;
       int hasProcStopRPC  = UNSET_CHECK, hasBlock = UNSET_CHECK, hasGotEvent = UNSET_CHECK;
       int hasStartupTeardownProc = UNSET_CHECK, hasNeonatalThreads = UNSET_CHECK, hasAsyncEvents = UNSET_CHECK;
@@ -1058,8 +1058,12 @@ bool int_process::waitAndHandleEvents(bool block)
       }
 
       Event::ptr ev = mbox()->dequeue(should_block);
-
-      if (ev == Event::ptr())
+      //_tprintf(_T("event name is %s\n"), ev.name());
+      if (ev != Event::ptr())
+         fprintf(stderr, "event name is %s\n", ev->name().c_str());
+      //_tprintf(_T("event ptr is %s\n"), Event::ptr());
+      //Event::ptr x = Event::ptr()
+	      if (ev == Event::ptr())
       {
          if (gotEvent) {
             pthrd_printf("Returning after handling events\n");
@@ -1137,7 +1141,7 @@ bool int_process::waitAndHandleEvents(bool block)
             error = true;
             goto done;
          }
-         llproc->plat_postHandleEvent();
+	         llproc->plat_postHandleEvent();
       }
       else
       {

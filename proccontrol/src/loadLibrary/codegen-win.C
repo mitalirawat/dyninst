@@ -8,7 +8,11 @@ bool Codegen::generateInt() {
    // Windows is utterly unlike Linux. 
 
    // Well, mostly. 
-
+   
+   //Address loadLibraryB = findinhinttable();
+   //Address loadLibraryA = findSymbolAddr("__imp_LoadLibraryA");
+   //Address loadLibraryB = findSymbolAddr("RtlGetFullPathName_UstrEx");
+   Address loadLibraryB = findSymbolAddr("loadlibraryWrapper");
    Address loadLibraryA = findSymbolAddr("_LoadLibraryA@4");
    if (!loadLibraryA) {
       loadLibraryA = findSymbolAddr("_LoadLibraryA");
@@ -20,13 +24,14 @@ bool Codegen::generateInt() {
 
    std::vector<Address> arguments;
    Address libbase = copyString(libname_);
+   fprintf(stderr, "buffer value is %s and libbase is %p\n",buffer_.start_ptr(), libbase);
    
    arguments.push_back(libbase);
 
    // No noops needed on a real OS
    codeStart_ = buffer_.curAddr();
    generatePreamble();
-   if (!generateCall(loadLibraryA, arguments)) return false;
+   if (!generateCall(loadLibraryB, arguments)) return false;
    
    return true;
 }

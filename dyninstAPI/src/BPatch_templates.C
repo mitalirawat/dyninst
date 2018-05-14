@@ -34,17 +34,17 @@
 
 #define BPATCH_FILE
 
-#if !defined(i386_unknown_nt4_0)
+#if !defined(os_windows)
 #pragma implementation "BPatch_Vector.h"
 #endif
 #include "BPatch_Vector.h"
 
-#if !defined(i386_unknown_nt4_0)
+#if !defined(os_windows)
 #pragma implementation "BPatch_Set.h"
 #endif
 #include "BPatch_Set.h"
 
-#if !defined(i386_unknown_nt4_0)
+#if !defined(os_windows)
 #pragma implementation "refCounter.h"
 #endif
 #include <string>

@@ -30,11 +30,13 @@ class Codegen {
    unsigned estimateSize();
    bool generateInt();
    Address findSymbolAddr(const std::string name, bool saveTOC = false);
+   Address Codegen::findinhinttable();
    Address copyString(std::string);
    Address copyBuf(void *buf, unsigned size);
    Address copyByte(unsigned char);
    Address copyInt(unsigned int);
    Address copyLong(unsigned long);
+   Address copyLongLong(unsigned long long);
 
 #if defined(os_linux)
    Address buildLinuxArgStruct(Address libbase, unsigned mode);
@@ -45,6 +47,7 @@ class Codegen {
 
    bool generateCallIA32(Address addr, const std::vector<Address> &args);
    bool generateCallAMD64(Address addr, const std::vector<Address> &args);
+   bool generateCallAMD64_windows(Address addr, const std::vector<Address> &args);
 
    bool generateCallPPC32(Address addr, const std::vector<Address> &args);
    bool generateCallPPC64(Address addr, const std::vector<Address> &args);

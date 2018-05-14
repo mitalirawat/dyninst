@@ -1523,7 +1523,7 @@ BPatch_breakPointExpr::BPatch_breakPointExpr()
  */
 BPatch_effectiveAddressExpr::BPatch_effectiveAddressExpr(int _which)
 {
-#if defined(i386_unknown_nt4_0)
+#if defined(os_windows)
   assert(_which >= 0 && _which <= 2);
 #elif defined (__XLC__) || defined(__xlC__)
   assert(_which >= 0 && _which <= 1);
@@ -1541,7 +1541,7 @@ BPatch_effectiveAddressExpr::BPatch_effectiveAddressExpr(int _which)
  */
 BPatch_bytesAccessedExpr::BPatch_bytesAccessedExpr(int _which)
 {
-#if defined(i386_unknown_nt4_0)
+#if defined(os_windows)
   assert(_which >= 0 && _which <= 2);
 #elif defined (__XLC__) || defined(__xlC__)
   assert(_which >= 0 && _which <= 1);

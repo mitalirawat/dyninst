@@ -282,6 +282,7 @@ namespace Dyninst
       }
     }
     
+    //__declspec(dllexport) size_t Instruction::size() const
     INSTRUCTION_EXPORT size_t Instruction::size() const
     {
       return m_size;

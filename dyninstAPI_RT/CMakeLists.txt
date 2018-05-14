@@ -11,7 +11,8 @@ include_directories (
     ${DYNINST_ROOT}/dyninstAPI_RT/h
     ${DYNINST_ROOT}
   )
-
+message(STATUS "VALUE OF CMAKE C COMPILER IS" ${CMAKE_C_COMPILER})
+message(STATUS "vlaue of env variable " $ENV{LIB} )
 set (SRC_LIST
     src/RTcommon.c 
     src/RTmemEmulator.c
@@ -90,7 +91,7 @@ set_source_files_properties(${SRC_ASSEMBLY}
         PROPERTIES
         LANGUAGE C)
 endif()
-
+message(STATUS "platform value is" ${PLATFORM})
 # The arch-specific files other than RTthread-x86 are Unix-only.
 if(UNIX)
 if (PLATFORM MATCHES amd64 OR PLATFORM MATCHES x86_64)
@@ -108,12 +109,27 @@ set (SRC_LIST ${SRC_LIST} ${SRC_LIST_aarch64})
 endif()
 endif()
 
-add_library (dyninstAPI_RT SHARED ${SRC_LIST})
+if(PLATFORM MATCHES windows)
+message(STATUS "platform matched windows yay!")
+if (PLATFORM MATCHES amd64 OR PLATFORM MATCHES x86_64)
+set (SRC_LIST_mabi ${SRC_LIST}
+    src/RTthread-x86.c
+)
+elseif (PLATFORM MATCHES i386)
+set (SRC_LIST ${SRC_LIST}
+    src/RTthread-x86.c
+)
+endif()
+endif()
 
+message(STATUS "heyaaa2")
+add_library (dyninstAPI_RT SHARED ${SRC_LIST})
 if (NOT PLATFORM MATCHES nt AND NOT PLATFORM MATCHES windows)
     target_link_libraries (dyninstAPI_RT ${CMAKE_DL_LIBS})
+    message(STATUS "heyaaawrong place")
 else() # windows
     target_link_libraries (dyninstAPI_RT ws2_32 dbghelp psapi)
+    message(STATUS "heyaaa1")
 endif()
 
 add_library (dyninstAPI_RT_static STATIC ${SRC_LIST})
@@ -162,7 +178,6 @@ INCLUDE(CheckCSourceCompiles)
 MACRO (CHECK_C_COMPILER_FLAG_EXTENDED _FLAG _RESULT)
    SET(SAFE_CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
    SET(CMAKE_C_FLAGS "${_FLAG}")
-
 # Addition here: use signal.h
    CHECK_C_SOURCE_COMPILES("#include <signal.h>
    int main(void) { return 0; }" 
@@ -182,10 +197,11 @@ MACRO (CHECK_C_COMPILER_FLAG_EXTENDED _FLAG _RESULT)
    SET(CMAKE_C_FLAGS "${SAFE_CMAKE_C_FLAGS}")
 ENDMACRO (CHECK_C_COMPILER_FLAG_EXTENDED)
 
-
 message (STATUS "Checking for 32-bit runtime library...")
 
+if(NOT PLATFORM MATCHES windows)
 CHECK_C_COMPILER_FLAG_EXTENDED ("-m32" CHECK_RT_LIB_32)
+endif()
 if (CHECK_RT_LIB_32 AND NOT ${PLATFORM} MATCHES bgq AND NOT ${BUILD_RTLIB_32} MATCHES "OFF")
 message (STATUS "Enabling 32-bit runtime library; change BUILD_RTLIB_32 to OFF to disable")
 SET (BUILD_RTLIB_32 ON)
@@ -193,13 +209,30 @@ ELSE ()
 message (STATUS "Disabling 32-bit runtime library; change BUILD_RTLIB_32 to ON and install 32-bit build environment to enable")
 SET (BUILD_RTLIB_32 OFF)
 ENDIF()
+message (STATUS "oustide:trying to build 32-bit runtime library")
+message(STATUS "VALUE OF CMAKE Cxx cOMPILER IS" ${CMAKE_C_COMPILER} ${CMAKE_CXX_COMPILER})
+message(STATUS "VALUE OF CMAKE Cxx cOMPILER IS"  ${CMAKE_CXX_COMPILER})
+
+
 
 if (BUILD_RTLIB_32 MATCHES "ON")
-
+message (STATUS "trying to build 32-bit runtime library")
 add_library (dyninstAPI_RT_m32 SHARED ${SRC_LIST_mabi})
 target_link_libraries (dyninstAPI_RT_m32 ${CMAKE_DL_LIBS})
 add_library (dyninstAPI_RT_m32_static STATIC ${SRC_LIST_mabi})
+if(PLATFORM MATCHES windows)
+message(STATUS "setting target properties")
+set_target_properties (dyninstAPI_RT_m32
+                      PROPERTIES
+		      OUTPUT_NAME dyninstAPI_RT_m32
+                      SOVERSION ${SOVERSION}
+                      VERSION ${LIBVERSION})
 
+set_target_properties (dyninstAPI_RT_m32_static
+                      PROPERTIES
+                      OUTPUT_NAME dyninstAPI_RT_m32
+		      COMPILE_DEFINITIONS DYNINST_RT_STATIC_LIB)
+else()
 set_target_properties (dyninstAPI_RT_m32
                       PROPERTIES
                       COMPILE_FLAGS "-DMUTATEE_32 -m32"
@@ -214,7 +247,7 @@ set_target_properties (dyninstAPI_RT_m32_static
                       COMPILE_FLAGS "-DMUTATEE_32 -m32"
                       LINK_FLAGS "-m32"
 		      COMPILE_DEFINITIONS DYNINST_RT_STATIC_LIB)
-
+endif()
 set_target_properties (dyninstAPI_RT_m32 PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (dyninstAPI_RT_m32_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
