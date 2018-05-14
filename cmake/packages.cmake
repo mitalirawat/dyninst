@@ -114,7 +114,8 @@ if(DEFINED PATH_BOOST OR
 endif()
 
 
-find_package (Boost ${BOOST_MIN_VERSION} COMPONENTS thread system date_time)
+message(STATUS "value of the host arch variable is" ${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE})
+find_package (Boost ${BOOST_MIN_VERSION} COMPONENTS thread system date_time filesystem)
 
 
 if(NOT Boost_FOUND)
@@ -128,7 +129,7 @@ if(NOT Boost_FOUND)
           --layout=tagged
           --threading=multi)
   set(BOOST_BUILD "./b2")
-  if(WIN32)
+  if(WIN32 OR WIN64)
     set(BOOST_BOOTSTRAP call bootstrap.bat)
     set(BOOST_BASE boost/src/Boost)
     if(CMAKE_SIZEOF_VOID_P STREQUAL "8")
@@ -164,6 +165,8 @@ if(NOT Boost_FOUND)
     set(Boost_LIBRARIES optimized libboost_thread-mt debug libboost_thread-mt-gd)
     list(APPEND Boost_LIBRARIES optimized libboost_system-mt debug libboost_system-mt-gd)
     list(APPEND Boost_LIBRARIES optimized libboost_date_time-mt debug libboost_date_time-mt-gd)
+    message(STATUS "adding filesystem boost library")
+    list(APPEND Boost_LIBRARIES optimized libboost_filesystem-mt debug libboost_filesystem-mt-gd)
   else()
     set(Boost_LIBRARIES boost_thread boost_system boost_date_time)
   endif()

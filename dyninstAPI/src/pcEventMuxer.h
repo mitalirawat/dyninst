@@ -40,6 +40,8 @@
 
 #include <queue>
 #include <set>
+//#include <fstream>
+//#include <iostream>
 /*
  * Overall design comment
  * 
@@ -89,10 +91,16 @@ protected:
 };
 
 class PCEventHandler;
-
+using namespace std;
 class PCEventMuxer {
 	friend class PCEventHandler;
 public:
+    
+    //ofstream myfile;
+    FILE * pFile;
+    PCEventMuxer::~PCEventMuxer()  {
+        //myfile.close();
+    };
 	typedef enum {
         EventsReceived,
         NoEvents,
@@ -113,6 +121,7 @@ public:
 
 // Commented out callbacks are handled by the default instead
 	static cb_ret_t defaultCallback(EventPtr);
+    static cb_ret_t SingleStepCallback(EventPtr);
     static cb_ret_t exitCallback(EventPtr);
     static cb_ret_t crashCallback(EventPtr);
     static cb_ret_t signalCallback(EventPtr);

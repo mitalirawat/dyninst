@@ -60,9 +60,10 @@ namespace Dyninst
     
     INSTRUCTION_EXPORT Instruction::Ptr InstructionDecoder::decode()
     {
-        if(m_buf.start >= m_buf.end) return Instruction::Ptr();
-      
+      if(m_buf.start >= m_buf.end) return Instruction::Ptr();
       Instruction::Ptr ret = m_Impl->decode(m_buf);
+      ret->format();
+      ret->size();
       return ret;
     }
     

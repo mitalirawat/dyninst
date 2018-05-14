@@ -73,7 +73,31 @@ int_process *int_process::createProcess(Dyninst::PID pid_, int_process *p)
 Dyninst::Architecture windows_process::getTargetArch()
 {
 	// Fix this when we add 64-bit windows support...
-	return Dyninst::Arch_x86;
+	/*if (arch != Dyninst::Arch_none) {
+      return arch;
+   }*/
+	arch = Dyninst::Arch_x86;
+#if defined arch_x86_64
+	typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+
+	LPFN_ISWOW64PROCESS fnIsWow64Process;
+   	BOOL bIsWow64 = FALSE;
+   	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
+
+    if(NULL != fnIsWow64Process)
+    {	
+    	HANDLE processhandle = plat_getHandle();
+        if (!fnIsWow64Process(processhandle, &bIsWow64))
+        {
+            //handle error
+            //throw new Exception();
+        }
+        arch = (bIsWow64 == TRUE) ? Dyninst::Arch_x86 : Dyninst::Arch_x86_64;
+    }
+#endif 
+   
+   return arch;
+	
 }
 
 windows_process::windows_process(Dyninst::PID p, std::string e, std::vector<std::string> a, 
@@ -142,7 +166,11 @@ void windows_process::plat_setHandles(HANDLE hp, HANDLE hf, Address eb)
 #if 1 // vista or greater
 	char filename[MAX_PATH+1];
 	int bytes_obtained = GetFinalPathNameByHandle(hf, filename, MAX_PATH, FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
-	if(bytes_obtained < MAX_PATH) fileName = std::string(filename+4); // skip \\?\ 
+	//if(bytes_obtained < MAX_PATH) fileName = std::string(filename+4); // skip \\?\
+	//we dont want to skip the prefix characters as the network paths cannot be processed without it and boost/filesystem can handle these characters- 
+	//they denote long paths
+    fileName = std::string(filename);
+
 #else
 	void *pmap = NULL;
     HANDLE fmap = CreateFileMapping(hfile, NULL, 
@@ -338,6 +366,12 @@ bool windows_process::plat_setMemoryAccessRights(Dyninst::Address addr,
         VirtualQueryEx(hproc, (LPCVOID)(addr), &meminfo,
                        sizeof(MEMORY_BASIC_INFORMATION));
         pthrd_printf("ERROR DUMP: baseAddr 0x%lx, AllocationBase 0x%lx, "
+                     "AllocationProtect 0x%lx, RegionSize 0x%lx, State 0x%lx, "
+                     "Protect 0x%lx, Type 0x%lx\n",
+                     meminfo.BaseAddress, meminfo.AllocationBase,
+                     meminfo.AllocationProtect, meminfo.RegionSize,
+                     meminfo.State, meminfo.Protect, meminfo.Type);
+        fprintf(stderr,"ERROR DUMP: baseAddr 0x%lx, AllocationBase 0x%lx, "
                      "AllocationProtect 0x%lx, RegionSize 0x%lx, State 0x%lx, "
                      "Protect 0x%lx, Type 0x%lx\n",
                      meminfo.BaseAddress, meminfo.AllocationBase,

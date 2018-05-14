@@ -276,6 +276,11 @@ bool windows_thread::plat_getAllRegisters(int_registerPool &regpool)
 		regpool.regs[x86_64::gs] = c.SegGs;
 		regpool.regs[x86_64::ss] = c.SegSs;
 		regpool.regs[x86_64::rip] = c.Rip;
+		regpool.regs[x86_64::r8] = c.R8;
+		regpool.regs[x86_64::r9] = c.R9;
+		regpool.regs[x86_64::r10] = c.R10;
+		regpool.regs[x86_64::r11] = c.R11;
+		regpool.regs[x86_64::r12] = c.R12;
 #else
 		regpool.regs[x86::eax] = c.Eax;
 		regpool.regs[x86::ebx] = c.Ebx;
@@ -362,6 +367,11 @@ bool windows_thread::plat_setAllRegisters(int_registerPool &regpool)
 		c.SegGs = regpool.regs[x86_64::gs];
 		c.SegSs = regpool.regs[x86_64::ss];
 		c.Rip = regpool.regs[x86_64::rip];
+		c.R8 = regpool.regs[x86_64::r8];
+		c.R9 = regpool.regs[x86_64::r9];
+		c.R10 = regpool.regs[x86_64::r10];
+		c.R11 = regpool.regs[x86_64::r11];
+		c.R12 = regpool.regs[x86_64::r12];
 #else
 		c.Eax = regpool.regs[x86::eax];
 		c.Ebx = regpool.regs[x86::ebx];

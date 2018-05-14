@@ -96,6 +96,24 @@ Symbol_t SymtabReader::getSymbolByName(std::string symname)
    return ret;
 }
 
+map<string, map<string, WORD> > & SymtabReader::getHintTable()
+{
+   assert(symtab);
+   DEFN_SYMBOL_T(ret);
+
+   std::vector<Symbol *> syms;
+   Object* obj = symtab->getObject();
+   
+   return obj->getHintNameTable();
+   // if (!result || syms.empty()) {
+   //    return ret;
+   // }
+
+   // ret.v1 = symtab;
+   // ret.v2 = syms[0];
+   // return ret;
+}
+
 Symbol_t SymtabReader::getContainingSymbol(Dyninst::Offset offset)
 {
    assert(symtab);

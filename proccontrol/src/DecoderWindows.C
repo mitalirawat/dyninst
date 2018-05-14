@@ -38,6 +38,7 @@
 #include <psapi.h>
 #include "procControl/h/Mailbox.h"
 #include "int_event.h"
+#include "PCProcess.h"
 
 using namespace std;
 
@@ -291,19 +292,19 @@ bool DecoderWindows::decode(ArchEvent *ae, std::vector<Event::ptr> &events)
 		case EXCEPTION_ACCESS_VIOLATION:
 			{
                 // check if this is first chance or second chance:
-                if (e.u.Exception.dwFirstChance != 0) {
-                    int sig = e.u.Exception.ExceptionRecord.ExceptionCode;
-                    int cause = e.u.Exception.ExceptionRecord.ExceptionInformation[0];
-                    Address addr = e.u.Exception.ExceptionRecord.ExceptionInformation[1];
-                    EventSignal* evSig = NULL;
-                    switch (cause) {
-                    case 0: evSig = new EventSignal(sig, addr, EventSignal::ReadViolation, true); break;
-                    case 1: evSig = new EventSignal(sig, addr, EventSignal::WriteViolation, true); break;
-                    case 8: evSig = new EventSignal(sig, addr, EventSignal::ExecuteViolation, true); break;
-                    default: evSig = new EventSignal(sig, addr, EventSignal::Unknown, true); break;
-                    }
-                    newEvt = EventSignal::ptr(evSig);
-                } else {
+                // if (e.u.Exception.dwFirstChance != 0) {
+                //     int sig = e.u.Exception.ExceptionRecord.ExceptionCode;
+                //     int cause = e.u.Exception.ExceptionRecord.ExceptionInformation[0];
+                //     Address addr = e.u.Exception.ExceptionRecord.ExceptionInformation[1];
+                //     EventSignal* evSig = NULL;
+                //     switch (cause) {
+                //     case 0: evSig = new EventSignal(sig, addr, EventSignal::ReadViolation, true); break;
+                //     case 1: evSig = new EventSignal(sig, addr, EventSignal::WriteViolation, true); break;
+                //     case 8: evSig = new EventSignal(sig, addr, EventSignal::ExecuteViolation, true); break;
+                //     default: evSig = new EventSignal(sig, addr, EventSignal::Unknown, true); break;
+                //     }
+                //     newEvt = EventSignal::ptr(evSig);
+                // } else {
                     pthrd_printf("segfault in mutatee, thread %d/%d\n", e.dwProcessId, e.dwThreadId);
 				    unsigned problemArea = (unsigned int)(e.u.Exception.ExceptionRecord.ExceptionAddress);
 				    cerr << "SEGFAULT @ " << hex << problemArea << dec << endl;
@@ -312,7 +313,7 @@ bool DecoderWindows::decode(ArchEvent *ae, std::vector<Event::ptr> &events)
 				    winGen->markUnhandledException(e.dwProcessId);
 				    newEvt = EventSignal::ptr(new EventSignal(e.u.Exception.ExceptionRecord.ExceptionCode));
 				    cerr << "Signal is " << e.u.Exception.ExceptionRecord.ExceptionCode << endl;
-                }
+                //}
 			}
 			break;
 			// Thread naming exception. Ignore.
@@ -328,6 +329,20 @@ bool DecoderWindows::decode(ArchEvent *ae, std::vector<Event::ptr> &events)
 					e.u.Exception.ExceptionRecord.ExceptionCode, e.u.Exception.ExceptionRecord.ExceptionAddress);
 				GeneratorWindows* winGen = static_cast<GeneratorWindows*>(GeneratorWindows::getDefaultGenerator());
 				winGen->markUnhandledException(e.dwProcessId);
+				//RegisterPool regs;
+				//THREAD_EXIT_DETACH_STOP_TEST("getAllRegisters", false);
+				int_registerPool pool;
+         		allreg_response::ptr allreg_resp = allreg_response::createAllRegResponse(&pool);
+   				//allreg_response::ptr response = allreg_response::createAllRegResponse(regs.llregpool);
+		        if( !thread->getAllRegisters(allreg_resp) ) {
+		            fprintf(stderr, "%s[%d]: Failed to get registers for crash\n", FILE__, __LINE__);
+		        }else{
+		            fprintf(stderr, "Registers at crash:\n");
+		            int_registerPool::reg_map_t regs = pool.regs;
+		            for(int_registerPool::iterator i = regs.begin(); i != regs.end(); i++) {
+		                fprintf(stderr, "\t%s = 0x%p\n", (*i).first.name().c_str(), (*i).second);
+		            }
+		        }
 				newEvt = EventSignal::ptr(new EventSignal(e.u.Exception.ExceptionRecord.ExceptionCode));
 			}
 			break;

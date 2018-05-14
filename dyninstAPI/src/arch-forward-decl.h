@@ -39,7 +39,7 @@ namespace NS_power {
     class instruction;
 }
 using namespace NS_power;
-#elif defined(i386_unknown_nt4_0) \
+#elif defined(os_windows) \
    || defined(arch_x86)           \
    || defined(arch_x86_64)
 namespace NS_x86 {

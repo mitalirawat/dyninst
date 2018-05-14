@@ -126,13 +126,15 @@ set_directory_properties(PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 
 set (BUILD_SHARED_LIBS ON)
 
+set (INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set (INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set (INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 set (INSTALL_CMAKE_DIR lib/cmake/${PROJECT_NAME} CACHE PATH "Installation directory for CMake files")
 set (INSTALL_DOC_DIR share/doc CACHE PATH "Installation directory for manuals")
 
 # Make the above absolute paths if necessary
-foreach (p LIB INCLUDE CMAKE)
+#foreach (p LIB INCLUDE CMAKE)
+foreach (p BIN LIB INCLUDE CMAKE)
   set (var INSTALL_${p}_DIR)
   if (NOT IS_ABSOLUTE "${${var}}")
      set (${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
@@ -141,6 +143,7 @@ endforeach()
 
 if(PLATFORM MATCHES nt OR PLATFORM MATCHES windows)
   add_definitions(-DWIN32_LEAN_AND_MEAN)
+  add_definitions(-DWIN64_LEAN_AND_MEAN)
   if (CMAKE_C_COMPILER_VERSION VERSION_GREATER 19)
     add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
   else()

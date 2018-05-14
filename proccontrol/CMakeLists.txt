@@ -35,7 +35,7 @@ set (SRC_LIST ${SRC_LIST}
      src/int_thread_db.C 
      src/mmapalloc.C 
 )
-elseif(WIN32)
+elseif(WIN32 OR WIN64)
 set (SRC_LIST ${SRC_LIST}
 	src/GeneratorWindows.C
 	src/DecoderWindows.C

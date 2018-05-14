@@ -86,6 +86,7 @@ class COMMON_EXPORT SymReader
    virtual ~SymReader() {}
  public:
    virtual Symbol_t getSymbolByName(std::string symname) = 0;
+   virtual std::map<std::string, std::map<std::string, WORD> > & getHintTable() = 0;
    virtual Symbol_t getContainingSymbol(Dyninst::Offset offset) = 0;
    virtual std::string getInterpreterName() = 0;
    virtual unsigned getAddressWidth() = 0;

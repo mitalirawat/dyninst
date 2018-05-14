@@ -74,6 +74,7 @@ class SYMTAB_EXPORT SymtabReader : public SymReader {
    virtual ~SymtabReader();
 
    virtual Symbol_t getSymbolByName(std::string symname);
+   virtual std::map<std::string, std::map<std::string, WORD> > & getHintTable();
    virtual unsigned long getSymbolSize(const Symbol_t &sym);
    virtual Symbol_t getContainingSymbol(Dyninst::Offset offset);
    virtual std::string getInterpreterName();

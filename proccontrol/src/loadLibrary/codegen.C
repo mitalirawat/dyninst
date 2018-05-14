@@ -79,14 +79,45 @@ Address Codegen::findSymbolAddr(const std::string name, bool saveTOC) {
    return 0;
 }
 
+Address Codegen::findinhinttable(){
+   Library::ptr exec = proc_->libraries().getExecutable();
+   //mapped_object pcProc_->libraries().getExecutable();
+
+   fprintf(stderr, " name is %s\n",exec->getName().c_str() );
+   SymReader *objSymReader = proc_->llproc()->getSymReader()->openSymbolReader(exec->getName());
+
+   map<string, map<string, WORD> > table = objSymReader->getHintTable();
+   for (const auto &p : table) {      
+      fprintf(stderr, "table %s", p.first.c_str()); 
+      for (const auto &q : p.second) {
+         fprintf(stderr, "p.second %s", q.first.c_str()); 
+         if (strcmp(q.first.c_str(), "LoadLibraryExW")==0)
+            return Address(q.second); 
+      }
+       }
+   // if (!objSymReader->isValidSymbol(lookupSym)) continue;
+
+   // Address addr = (*li)->getLoadAddress() + objSymReader->getSymbolOffset(lookupSym);
+
+   // if (saveTOC) {
+   //    toc_[addr] = (*li)->getLoadAddress() + objSymReader->getSymbolTOC(lookupSym);
+   // }
+   // return addr;
+
+   return 0;
+
+}
+
 Address Codegen::copyString(std::string name) {
    Address ret = buffer_.curAddr();
    unsigned strsize = name.length() + 1;
    // Round to multiple of 4
-   strsize += 3; strsize -= (strsize % 4);
+   //strsize += 3; strsize -= (strsize % 4);
+   strsize += 15; strsize -= (strsize % 16);
    buffer_.copy(name.begin(), name.end());
    for (unsigned i = 0; i < (strsize - name.length()); ++i) {
-      buffer_.push_back((unsigned char) 0x0);
+      buffer_.push_back('\0');
+      //buffer_.push_back((unsigned char) 0x0);
    }
    return ret;
 }
@@ -112,6 +143,11 @@ Address Codegen::copyInt(unsigned int i) {
 }
 
 Address Codegen::copyLong(unsigned long l) {
+   Address ret = buffer_.curAddr();
+   buffer_.push_back(l);
+   return ret;
+}
+Address Codegen::copyLongLong(unsigned long long l) {
    Address ret = buffer_.curAddr();
    buffer_.push_back(l);
    return ret;

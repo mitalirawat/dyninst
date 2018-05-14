@@ -33,7 +33,7 @@
 #if !defined(PDWINNT_H)
 #define PDWINNT_H
 
-#if !defined(i386_unknown_nt4_0)
+#if !defined(os_windows)
 #error "invalid architecture-os inclusion"
 #endif
 

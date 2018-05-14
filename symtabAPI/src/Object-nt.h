@@ -68,7 +68,7 @@ class ExceptionBlock;
 /************************************************************************
  * class Object
 ************************************************************************/
-
+//SYMTAB_EXPORT void fixup_filename(std::string &);
 class Object : public AObject
 {
 	friend class Symtab;
@@ -175,6 +175,7 @@ class Object : public AObject
     const Object& operator=(const Object &);
 
  public:
+    SYMTAB_EXPORT void parseFileLineInfo();
     SYMTAB_EXPORT Object(MappedFile *, bool defensive, 
                          void (*)(const char *) = log_msg, bool alloc_syms = true, Symtab* st = NULL);
   
@@ -238,7 +239,7 @@ class Object : public AObject
 
 private:
     SYMTAB_EXPORT void    ParseSymbolInfo( bool );
-    SYMTAB_EXPORT void parseFileLineInfo();
+    //SYMTAB_EXPORT void parseFileLineInfo();
     SYMTAB_EXPORT void parseLineInfoForAddr(Offset)
     {
       parseFileLineInfo();

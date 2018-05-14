@@ -45,7 +45,7 @@ namespace Dyninst
     struct ppcOperandParser;
     struct aarch64OperandParser;
 
-    typedef unsigned long MachRegisterVal;
+    typedef uint64_t MachRegisterVal;
 
     //0xff000000 is used to encode architecture
     typedef enum

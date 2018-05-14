@@ -425,10 +425,6 @@ mapped_object *BinaryEdit::openResolvedLibraryName(std::string filename, std::ma
     return NULL;
 }
 
-bool BinaryEdit::getResolvedLibraryPath(const std::string &, std::vector<std::string> &) {
-    assert(!"Not implemented");
-    return false;
-}
 #endif
 
 #if !(defined(cap_binary_rewriter) && (defined(arch_x86) || defined(arch_x86_64)\

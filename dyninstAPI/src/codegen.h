@@ -38,7 +38,7 @@
 #if defined(arch_power)
 #include "codegen-power.h"
 using namespace NS_power;
-#elif defined(i386_unknown_nt4_0) \
+#elif defined(os_windows) \
    || defined(arch_x86)           \
    || defined(arch_x86_64)
 #include "codegen-x86.h"

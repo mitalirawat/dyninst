@@ -29,7 +29,7 @@ set (HEADER_DIRS common
     stackwalk
     symtabAPI
     )
-if(NOT ${PLATFORM} MATCHES nt)
+if(NOT ${PLATFORM} MATCHES nt AND NOT ${PLATFORM} MATCHES windows)
   set (HEADER_DIRS ${HEADER_DIRS}
     dwarf
     elf
@@ -48,7 +48,7 @@ include_directories (
 set(Boost_USE_STATIC_LIBS OFF)
 # Component time
 add_subdirectory (common)
-if(NOT ${PLATFORM} MATCHES nt)
+if(NOT ${PLATFORM} MATCHES nt AND NOT ${PLATFORM} MATCHES windows)
   add_subdirectory (elf)
   add_subdirectory (dwarf)
   add_subdirectory (symlite)
@@ -60,6 +60,7 @@ add_subdirectory (parseAPI)
 add_subdirectory (proccontrol)
 add_subdirectory (stackwalk)
 add_subdirectory (patchAPI)
+add_subdirectory(examples)
 if(${SYMREADER} MATCHES symtabAPI)
   add_subdirectory (dyninstAPI)
   add_subdirectory (dynC_API)
@@ -90,6 +91,7 @@ if(BUILD_RTLIB)
     -DBUILD_RTLIB_32=${BUILD_RTLIB_32}
     -DPLATFORM=${PLATFORM}
     -G ${CMAKE_GENERATOR}
+    -DCMAKE_GENERATOR_TOOLSET=${CMAKE_GENERATOR_TOOLSET}
     ${RT_SOURCE_DIR})
 
   if(MSVC)
