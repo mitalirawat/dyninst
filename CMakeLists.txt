@@ -219,3 +219,6 @@ endif()
 if(TARGET boost)
     add_dependencies(common boost)
 endif()
+
+message(STATUS "sdk version" ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
+message(STATUS ${PROJECT_SOURCE_DIR})

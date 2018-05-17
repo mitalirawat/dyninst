@@ -108,7 +108,9 @@ Address Codegen::findinhinttable(){
 
 }
 
-Address Codegen::copyString(std::string name) {
+Address Codegen::copyString(std::string name_old) {
+   //for testing with loadking common.dll
+   std::wstring name( L"E:\\documents\\dyninst-builds\\new-release-install-build-64\\lib\\common.dll" );
    Address ret = buffer_.curAddr();
    unsigned strsize = name.length() + 1;
    // Round to multiple of 4

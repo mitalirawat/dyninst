@@ -331,7 +331,7 @@ bool DecoderWindows::decode(ArchEvent *ae, std::vector<Event::ptr> &events)
 				winGen->markUnhandledException(e.dwProcessId);
 				//RegisterPool regs;
 				//THREAD_EXIT_DETACH_STOP_TEST("getAllRegisters", false);
-				int_registerPool pool;
+				/*int_registerPool pool;
          		allreg_response::ptr allreg_resp = allreg_response::createAllRegResponse(&pool);
    				//allreg_response::ptr response = allreg_response::createAllRegResponse(regs.llregpool);
 		        if( !thread->getAllRegisters(allreg_resp) ) {
@@ -342,7 +342,7 @@ bool DecoderWindows::decode(ArchEvent *ae, std::vector<Event::ptr> &events)
 		            for(int_registerPool::iterator i = regs.begin(); i != regs.end(); i++) {
 		                fprintf(stderr, "\t%s = 0x%p\n", (*i).first.name().c_str(), (*i).second);
 		            }
-		        }
+		        }*/
 				newEvt = EventSignal::ptr(new EventSignal(e.u.Exception.ExceptionRecord.ExceptionCode));
 			}
 			break;
